@@ -35,7 +35,7 @@ class AlumniConnectPage extends StatelessWidget {
           }
 
           List<QueryDocumentSnapshot> alumni = snapshot.data!.docs
-              .where((user) => user['uid'] != currentUserUid)
+              .where((user) => user['uid'] != currentUserUid && user['role'] != 'admin')
               .toList();
 
           return ListView.builder(

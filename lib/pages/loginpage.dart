@@ -1,4 +1,5 @@
 // login_page.dart
+import 'package:appdev/pages/adminpage.dart';
 import 'package:appdev/pages/signuppage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _graduationYearController = TextEditingController();
   final TextEditingController _displayNameController = TextEditingController();
   final TextEditingController _currentJobController = TextEditingController();
+  final TextEditingController _roleController = TextEditingController();
 
   Future<void> _login() async {
     try {
@@ -27,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
+        //graduationYear:_graduationYearController.text,
       );
 
       DocumentSnapshot userSnapshot = await _firestore.collection('users').doc(userCredential.user!.uid).get();
@@ -41,17 +44,28 @@ class _LoginPageState extends State<LoginPage> {
         displayName: userSnapshot['displayName'],
         graduationYear: userSnapshot['graduationYear'],
         currentJob: userSnapshot['currentJob'],
+        role: userSnapshot['role'],
       );
 
       if (loggedInUser != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AlumniConnectPage(currentUserUid: loggedInUser.uid),
-          ),
-        );
+        if (loggedInUser.role == 'alumini') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AlumniConnectPage(currentUserUid: loggedInUser.uid),
+            ),
+          );
+        } else if (loggedInUser.role == 'admin') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AdminPage(),
+            ),
+          );
+        }
+        // Handle other roles if needed
       }
-    } catch (e) {
+    }catch (e) {
       print('Error during login: $e');
       // Handle login errors here
     }
@@ -89,9 +103,13 @@ class _LoginPageState extends State<LoginPage> {
               ),
               TextField(
                 controller: _currentJobController,
-                decoration: InputDecoration(labelText: 'Current Role'),
+                decoration: InputDecoration(labelText: 'Current JobRole'),
               ),
               SizedBox(height: 16.0),
+              TextField(
+                controller: _roleController,
+                decoration: InputDecoration(labelText: 'Role'), // Add this line
+              ),
               ElevatedButton(
                 onPressed: _login,
                 child: Text('Login'),

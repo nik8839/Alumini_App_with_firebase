@@ -5,6 +5,7 @@ class UserModel {
   final String displayName;
   final String graduationYear;
   final String currentJob;
+  final String role;
 
   UserModel({
     required this.uid,
@@ -12,5 +13,6 @@ class UserModel {
     required this.displayName,
     required this.graduationYear,
     required this.currentJob,
+    required this.role,
   });
 }

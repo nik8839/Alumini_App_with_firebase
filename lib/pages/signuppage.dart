@@ -1,4 +1,5 @@
 // signup_page.dart
+import 'package:appdev/pages/adminpage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,9 +21,10 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _graduationYearController = TextEditingController();
   final TextEditingController _displayNameController = TextEditingController();
   final TextEditingController _currentJobController = TextEditingController();
+  final TextEditingController _roleController = TextEditingController();
 
 
-  void _signUp() async {
+ Future<void> _signUp() async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text,
@@ -34,6 +36,7 @@ class _SignUpPageState extends State<SignUpPage> {
         displayName: _displayNameController.text,
         graduationYear: _graduationYearController.text,
         currentJob: _currentJobController.text,
+        role: _roleController.text,
       );
 
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
@@ -42,11 +45,31 @@ class _SignUpPageState extends State<SignUpPage> {
         'displayName': newUser.displayName,
         'graduationYear': newUser.graduationYear,
         'currentJob': newUser.currentJob,
+        'role':newUser.role,
       });
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AlumniConnectPage(currentUserUid: newUser!.uid)
+          builder: (context)
+          {
+            switch (newUser.role) {
+              case 'alumini'||'Alumini':
+                return AlumniConnectPage(currentUserUid: newUser!.uid);
+              case 'admin'||'Admin':
+                return AdminPage();
+              default:
+              // Handle other roles or show an error message
+                return Scaffold(
+                  appBar: AppBar(
+                    title: Text('Error'),
+                  ),
+                  body: Center(
+                    child: Text('Invalid role'),
+                  ),
+                );
+            }
+          },
+          //=> AlumniConnectPage(currentUserUid: newUser!.uid)
         ),
       );
       // Navigate to the next screen or perform any other action upon successful signup
@@ -64,37 +87,44 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _displayNameController,
-              decoration: InputDecoration(labelText: 'Name'),
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
-            ),
-
-            TextField(
-              controller: _graduationYearController,
-              decoration: InputDecoration(labelText: 'Year of graduation'),
-            ),
-            TextField(
-              controller: _currentJobController,
-              decoration: InputDecoration(labelText: 'Current Role'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: _signUp,
-              child: Text('Sign Up'),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: _displayNameController,
+                decoration: InputDecoration(labelText: 'Name'),
+              ),
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+              ),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(labelText: 'Password'),
+              ),
+          
+              TextField(
+                controller: _graduationYearController,
+                decoration: InputDecoration(labelText: 'Year of graduation'),
+              ),
+              TextField(
+                controller: _currentJobController,
+                decoration: InputDecoration(labelText: 'Current JobRole'),
+              ),
+              TextField(
+                controller: _roleController,
+                decoration: InputDecoration(labelText: 'Role'), // Add this line
+              ),
+              //SizedBox(height: 16.0),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: _signUp,
+                child: Text('Sign Up'),
+              ),
+            ],
+          ),
         ),
       ),
     );

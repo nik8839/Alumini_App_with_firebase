@@ -57,20 +57,23 @@ class _ChatPageState extends State<ChatPage> {
                 for (QueryDocumentSnapshot message in messages) {
                   final messageText = message['text'];
                   final messageSenderUid = message['senderUid'];
+                  final isSentMessage = messageSenderUid == _auth.currentUser!.uid;
 
                   messageWidgets.add(
-                    ListTile(
-                      title: Text(messageText),
-                      subtitle: FutureBuilder(
-                        future: _firestore.collection('users').doc(messageSenderUid).get(),
-                        builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
-                          if (!userSnapshot.hasData) {
-                            return CircularProgressIndicator();
-                          }
-
-                          final displayName = userSnapshot.data!['displayName'];
-                          return Text(displayName);
-                        },
+                    Align(
+                      alignment: isSentMessage ? Alignment.centerLeft : Alignment.centerRight,
+                      child: ListTile(
+                        title: Text(messageText),
+                        subtitle: FutureBuilder(
+                          future: _firestore.collection('users').doc(messageSenderUid).get(),
+                          builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                            if (!userSnapshot.hasData || userSnapshot.data == null) {
+                              return CircularProgressIndicator();
+                            }
+                            final displayName = userSnapshot.data!['displayName'];
+                            return Text(displayName);
+                          },
+                        ),
                       ),
                     ),
                   );
