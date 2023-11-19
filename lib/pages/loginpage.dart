@@ -18,18 +18,12 @@ class _LoginPageState extends State<LoginPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _graduationYearController = TextEditingController();
-  final TextEditingController _displayNameController = TextEditingController();
-  final TextEditingController _currentJobController = TextEditingController();
-  final TextEditingController _roleController = TextEditingController();
 
   Future<void> _login() async {
     try {
-
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
-        //graduationYear:_graduationYearController.text,
       );
 
       DocumentSnapshot userSnapshot = await _firestore.collection('users').doc(userCredential.user!.uid).get();
@@ -65,12 +59,11 @@ class _LoginPageState extends State<LoginPage> {
         }
         // Handle other roles if needed
       }
-    }catch (e) {
+    } catch (e) {
       print('Error during login: $e');
       // Handle login errors here
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -84,9 +77,13 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextField(
-                controller: _displayNameController,
-                decoration: InputDecoration(labelText: 'Name'),
+              // Add some styling and decoration
+              Container(
+                margin: EdgeInsets.only(bottom: 16.0),
+                child: Text(
+                  'Welcome Back!',
+                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                ),
               ),
               TextField(
                 controller: _emailController,
@@ -97,19 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
                 decoration: InputDecoration(labelText: 'Password'),
               ),
-              TextField(
-                controller: _graduationYearController,
-                decoration: InputDecoration(labelText: 'Year of graduation'),
-              ),
-              TextField(
-                controller: _currentJobController,
-                decoration: InputDecoration(labelText: 'Current JobRole'),
-              ),
               SizedBox(height: 16.0),
-              TextField(
-                controller: _roleController,
-                decoration: InputDecoration(labelText: 'Role'), // Add this line
-              ),
               ElevatedButton(
                 onPressed: _login,
                 child: Text('Login'),
@@ -131,4 +116,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

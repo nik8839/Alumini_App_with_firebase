@@ -60,28 +60,73 @@ class _ChatPageState extends State<ChatPage> {
                   final isSentMessage = messageSenderUid == _auth.currentUser!.uid;
 
                   messageWidgets.add(
-                    Align(
-                      alignment: isSentMessage ? Alignment.centerLeft : Alignment.centerRight,
-                      child: ListTile(
-                        title: Text(messageText),
-                        subtitle: FutureBuilder(
-                          future: _firestore.collection('users').doc(messageSenderUid).get(),
-                          builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
-                            if (!userSnapshot.hasData || userSnapshot.data == null) {
-                              return CircularProgressIndicator();
-                            }
-                            final displayName = userSnapshot.data!['displayName'];
-                            return Text(displayName);
-                          },
-                        ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: isSentMessage
+                          ? Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue, // You can customize the color
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Text(
+                                    messageText,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                Text('You'), // Display your name for sent messages
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                          : Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey, // You can customize the color
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Text(messageText),
+                                ),
+                                FutureBuilder(
+                                  future: _firestore.collection('users').doc(messageSenderUid).get(),
+                                  builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                                    if (!userSnapshot.hasData || userSnapshot.data == null) {
+                                      return CircularProgressIndicator();
+                                    }
+                                    final displayName = userSnapshot.data!['displayName'];
+                                    return Text(displayName);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );
                 }
 
+
+
                 return ListView(
                   children: messageWidgets,
                 );
+
               },
             ),
           ),

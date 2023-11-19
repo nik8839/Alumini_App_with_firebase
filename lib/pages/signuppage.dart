@@ -1,12 +1,9 @@
-// signup_page.dart
+import 'package:appdev/models/user_model.dart';
 import 'package:appdev/pages/adminpage.dart';
+import 'package:appdev/pages/alumini_connect_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../models/user_model.dart';
-import 'alumini_connect_page.dart';
-import 'chatpage.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -23,20 +20,39 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _currentJobController = TextEditingController();
   final TextEditingController _roleController = TextEditingController();
 
+  String selectedRole = 'alumini'; // Default to alumni
+  bool isGraduationYearVisible = true;
+  bool isCurrentJobVisible = true;
 
- Future<void> _signUp() async {
+  void _handleRoleChange(String value) {
+    setState(() {
+      selectedRole = value;
+
+      // Update visibility based on the selected role
+      isGraduationYearVisible = selectedRole == 'alumini';
+      isCurrentJobVisible = selectedRole == 'alumini';
+    });
+  }
+
+  Future<void> _signUp() async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
+
+      // Create a user model
+      // Use the selectedRole for additional logic as needed
+      // Here, we're just storing it in the role field of the user model
+      // Modify this part according to your user model structure
+      // You can also add more fields based on the role if needed
       UserModel newUser = UserModel(
         uid: userCredential.user!.uid,
         email: _emailController.text,
         displayName: _displayNameController.text,
         graduationYear: _graduationYearController.text,
         currentJob: _currentJobController.text,
-        role: _roleController.text,
+        role: selectedRole,
       );
 
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
@@ -45,33 +61,27 @@ class _SignUpPageState extends State<SignUpPage> {
         'displayName': newUser.displayName,
         'graduationYear': newUser.graduationYear,
         'currentJob': newUser.currentJob,
-        'role':newUser.role,
+        'role': newUser.role,
       });
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context)
-          {
-            switch (newUser.role) {
-              case 'alumini'||'Alumini':
-                return AlumniConnectPage(currentUserUid: newUser!.uid);
-              case 'admin'||'Admin':
-                return AdminPage();
-              default:
-              // Handle other roles or show an error message
-                return Scaffold(
-                  appBar: AppBar(
-                    title: Text('Error'),
-                  ),
-                  body: Center(
-                    child: Text('Invalid role'),
-                  ),
-                );
-            }
-          },
-          //=> AlumniConnectPage(currentUserUid: newUser!.uid)
-        ),
-      );
+      if (newUser != null) {
+        if (newUser.role == 'alumini') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AlumniConnectPage(currentUserUid: newUser.uid),
+            ),
+          );
+        } else if (newUser.role == 'admin') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AdminPage(),
+            ),
+          );
+        }
+        // Handle other roles if needed
+      }
+
       // Navigate to the next screen or perform any other action upon successful signup
     } catch (e) {
       print('Error during signup: $e');
@@ -91,34 +101,64 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Radio buttons for selecting the role
+              Row(
+                children: [
+                  Radio(
+                    value: 'alumini',
+                    groupValue: selectedRole,
+                    onChanged: (String? value) {
+                      _handleRoleChange(value!);
+                    },
+                  ),
+                  Text('alumini'),
+                  Radio(
+                    value: 'admin',
+                    groupValue: selectedRole,
+                    onChanged: (String? value) {
+                      _handleRoleChange(value!);
+                    },
+                  ),
+                  Text('admin'),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              // Text fields for user input
               TextField(
                 controller: _displayNameController,
                 decoration: InputDecoration(labelText: 'Name'),
               ),
+              SizedBox(height: 8.0),
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(labelText: 'Email'),
               ),
+              SizedBox(height: 8.0),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(labelText: 'Password'),
               ),
-          
-              TextField(
-                controller: _graduationYearController,
-                decoration: InputDecoration(labelText: 'Year of graduation'),
+              SizedBox(height: 8.0),
+              // Graduation year field
+              Visibility(
+                visible: isGraduationYearVisible,
+                child: TextField(
+                  controller: _graduationYearController,
+                  decoration: InputDecoration(labelText: 'Year of graduation'),
+                ),
               ),
-              TextField(
-                controller: _currentJobController,
-                decoration: InputDecoration(labelText: 'Current JobRole'),
+              SizedBox(height: 8.0),
+              // Current job field
+              Visibility(
+                visible: isCurrentJobVisible,
+                child: TextField(
+                  controller: _currentJobController,
+                  decoration: InputDecoration(labelText: 'Current JobRole'),
+                ),
               ),
-              TextField(
-                controller: _roleController,
-                decoration: InputDecoration(labelText: 'Role'), // Add this line
-              ),
-              //SizedBox(height: 16.0),
               SizedBox(height: 16.0),
+              // Sign-up button
               ElevatedButton(
                 onPressed: _signUp,
                 child: Text('Sign Up'),
@@ -130,3 +170,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 }
+
+// UserModel class (replace it with your actual user model)
+
