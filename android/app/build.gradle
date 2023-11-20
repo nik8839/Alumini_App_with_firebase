@@ -27,6 +27,10 @@ android {
     namespace "com.example.appdev"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
+    lintOptions {
+        disable 'deprecated'
+        check 'unchecked'
+    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

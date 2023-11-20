@@ -25,7 +25,7 @@ class AlumniConnectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Alumni Connect'),
+        title: Center(child: Text('Alumini ')),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('users').snapshots(),
