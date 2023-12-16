@@ -9,7 +9,7 @@
 -------------------------------------------------------------------------------------------------------
 
 ## Alumini after login can see other alumini if existing. They can chat with any of the alumini and can exchange the messages.
-
+Other features include user information,user updation and search bar facility that is helpful for user tosearch any particular alumini
 ------------------------------------------------------------------------------------------------------
 ## This simple project basically highlights the use of firebase for authentication and using cloud firestore to store the chats.
 
